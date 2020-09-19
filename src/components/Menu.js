@@ -18,14 +18,12 @@ const Menu = () => {
   };
 
   return (
-    <div>
-        <React.Fragment>
-          <Button onClick={toggleDrawer(true)}><MenuIcon /></Button>
-          <Drawer anchor='left' open={state['showMenu']} onClose={toggleDrawer(false)}>
-            <MenuItem toggleDrawer={toggleDrawer}/>
-          </Drawer>
-        </React.Fragment>
-    </div>
+    <>
+      <Button onClick={toggleDrawer(true)}><MenuIcon/></Button>
+      <Drawer anchor='left' open={state.showMenu} onClose={toggleDrawer(false)}>
+        <MenuItem toggleDrawer={toggleDrawer}/>
+      </Drawer>
+    </>
   );
 }
 

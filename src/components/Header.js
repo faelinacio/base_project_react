@@ -8,22 +8,27 @@ const useStyles = makeStyles(() => ({
   grow: {
     flexGrow: 1,
   },
+  title: {
+    marginLeft: 15,
+    flexGrow: 1,
+  }
 }));
 
-const Header = () => {
+const Header = (props) => {
   const classes = useStyles();
 
   return (
-    <AppBar position="sticky">
-      <Toolbar>
-        <Menu/>
-        <Typography variant="h6" color="inherit">Header</Typography>
+    <div className={classes.grow}>
+      <AppBar position="static">
+        <Toolbar>
+          <Menu/>
 
-        <div className={classes.grow}/>
+          <Typography className={classes.title} variant="h6" color="inherit">{props.title}</Typography>
 
-        <UserMenu/>
-      </Toolbar>
-    </AppBar>
+          <UserMenu/>
+        </Toolbar>
+      </AppBar>
+    </div>
   );
 }
 

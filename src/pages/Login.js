@@ -34,6 +34,7 @@ const Login = () => {
     const dispatch = useDispatch();
     const history = useHistory();
     const userIsLogged = useSelector((state) => state.session.isLogged);
+    const notify = (text) => toast.warn(text, {});
 
     useEffect(() => {
         if (userIsLogged) {
@@ -50,8 +51,6 @@ const Login = () => {
             }
         }));
     };
-
-    const notify = (text) => toast.warn(text, {});
 
     return (
         <>

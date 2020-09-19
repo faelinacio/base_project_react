@@ -5,6 +5,7 @@ import ListItemText from "@material-ui/core/ListItemText";
 import React from "react";
 import {makeStyles} from "@material-ui/styles";
 import PersonIcon from '@material-ui/icons/Person';
+import HomeIcon from '@material-ui/icons/Home';
 import {useHistory} from "react-router-dom";
 
 const useStyles = makeStyles({
@@ -18,10 +19,9 @@ const MenuItem = (props) => {
   const history = useHistory();
 
   const menuItems = [
+    {title: 'Home', icon: <HomeIcon />, link: "/home"},
     {title: 'Users', icon: <PersonIcon />, link: "/userList"},
   ];
-
-  const toggleDrawer = props.toggleDrawer;
 
   const browseTo = (route) => {
     history.push(route);
@@ -31,8 +31,8 @@ const MenuItem = (props) => {
     <div
       className={classes.list}
       role="presentation"
-      onClick={toggleDrawer(false)}
-      onKeyDown={toggleDrawer(false)}
+      onClick={props.toggleDrawer(false)}
+      onKeyDown={props.toggleDrawer(false)}
     >
       <List>
         {menuItems.map(({title, icon, link}, index) => (

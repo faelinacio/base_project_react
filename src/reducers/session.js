@@ -11,13 +11,16 @@ const session = (state = initialState, action) => {
       localStorage.setItem('accessToken', action.payload.accessToken);
       return {
         isLogged: true,
-        user: action.payload
+        user: action.payload,
+        accessToken: action.payload.accessToken
       };
     case 'LOGOUT':
       localStorage.removeItem('user');
       localStorage.removeItem('accessToken');
       return {
-        ...initialState
+        isLogged: false,
+        user: null,
+        accessToken: null,
       }
     case 'UPDATE-USER':
       return {
