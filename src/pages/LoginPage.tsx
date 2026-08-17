@@ -2,8 +2,18 @@ import { useState } from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
-import { Alert, Box, Button, Link as MuiLink, Paper, TextField, Typography } from '@mui/material'
+import {
+  Box,
+  Button,
+  chakra,
+  Field,
+  Heading,
+  Input,
+  Link as ChakraLink,
+  Text,
+} from '@chakra-ui/react'
 import { Link as RouterLink, useLocation, useNavigate } from 'react-router-dom'
+import { AlertMessage } from '@/components/AlertMessage'
 import { useAuth } from '@/hooks/useAuth'
 import { extractErrorMessage } from '@/lib/apiClient'
 
@@ -67,99 +77,105 @@ export function LoginPage() {
 
   return (
     <Box
-      sx={{
-        minHeight: '100vh',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        p: 2,
-      }}
+      minH="100vh"
+      display="flex"
+      alignItems="center"
+      justifyContent="center"
+      p={4}
+      bg="bg.subtle"
     >
-      <Paper elevation={3} sx={{ p: 4, width: '100%', maxWidth: 400 }}>
-        <Typography variant="h5" component="h1" gutterBottom sx={{ fontWeight: 600 }}>
+      <Box
+        bg="bg.panel"
+        borderWidth="1px"
+        borderColor="border"
+        borderRadius="lg"
+        boxShadow="lg"
+        p={8}
+        w="full"
+        maxW="400px"
+      >
+        <Heading as="h1" size="lg" mb={4}>
           {mfaToken ? 'Verificação em duas etapas' : 'Entrar'}
-        </Typography>
+        </Heading>
 
         {errorMessage && (
-          <Alert severity="error" sx={{ mb: 2 }}>
-            {errorMessage}
-          </Alert>
-        )}
-
-        {!mfaToken && (
-          <Box
-            component="form"
-            onSubmit={credentialsForm.handleSubmit(onSubmitCredentials)}
-            noValidate
-          >
-            <TextField
-              {...credentialsForm.register('email')}
-              label="E-mail"
-              type="email"
-              fullWidth
-              margin="normal"
-              autoComplete="email"
-              autoFocus
-              error={Boolean(credentialsForm.formState.errors.email)}
-              helperText={credentialsForm.formState.errors.email?.message}
-            />
-            <TextField
-              {...credentialsForm.register('password')}
-              label="Senha"
-              type="password"
-              fullWidth
-              margin="normal"
-              autoComplete="current-password"
-              error={Boolean(credentialsForm.formState.errors.password)}
-              helperText={credentialsForm.formState.errors.password?.message}
-            />
-            <Button
-              type="submit"
-              variant="contained"
-              fullWidth
-              size="large"
-              sx={{ mt: 2 }}
-              disabled={isSubmitting}
-            >
-              Entrar
-            </Button>
-            <Typography variant="body2" sx={{ mt: 2, textAlign: 'center' }}>
-              Não tem uma conta?{' '}
-              <MuiLink component={RouterLink} to="/register">
-                Cadastre-se
-              </MuiLink>
-            </Typography>
+          <Box mb={4}>
+            <AlertMessage status="error">{errorMessage}</AlertMessage>
           </Box>
         )}
 
-        {mfaToken && (
-          <Box component="form" onSubmit={totpForm.handleSubmit(onSubmitTotp)} noValidate>
-            <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-              Informe o código de 6 dígitos do seu aplicativo autenticador.
-            </Typography>
-            <TextField
-              {...totpForm.register('code')}
-              label="Código de verificação"
-              fullWidth
-              margin="normal"
-              autoFocus
-              slotProps={{ htmlInput: { inputMode: 'numeric', maxLength: 6 } }}
-              error={Boolean(totpForm.formState.errors.code)}
-              helperText={totpForm.formState.errors.code?.message}
-            />
+        {!mfaToken && (
+          <chakra.form onSubmit={credentialsForm.handleSubmit(onSubmitCredentials)} noValidate>
+            <Field.Root invalid={Boolean(credentialsForm.formState.errors.email)} mb={4}>
+              <Field.Label>E-mail</Field.Label>
+              <Input
+                {...credentialsForm.register('email')}
+                type="email"
+                autoComplete="email"
+                autoFocus
+              />
+              {credentialsForm.formState.errors.email && (
+                <Field.ErrorText>{credentialsForm.formState.errors.email.message}</Field.ErrorText>
+              )}
+            </Field.Root>
+            <Field.Root invalid={Boolean(credentialsForm.formState.errors.password)} mb={2}>
+              <Field.Label>Senha</Field.Label>
+              <Input
+                {...credentialsForm.register('password')}
+                type="password"
+                autoComplete="current-password"
+              />
+              {credentialsForm.formState.errors.password && (
+                <Field.ErrorText>
+                  {credentialsForm.formState.errors.password.message}
+                </Field.ErrorText>
+              )}
+            </Field.Root>
             <Button
               type="submit"
-              variant="contained"
-              fullWidth
-              size="large"
-              sx={{ mt: 2 }}
-              disabled={isSubmitting}
+              colorPalette="blue"
+              w="full"
+              size="lg"
+              mt={2}
+              loading={isSubmitting}
+            >
+              Entrar
+            </Button>
+            <Text fontSize="sm" mt={4} textAlign="center">
+              Não tem uma conta?{' '}
+              <ChakraLink asChild color="blue.600">
+                <RouterLink to="/register">Cadastre-se</RouterLink>
+              </ChakraLink>
+            </Text>
+          </chakra.form>
+        )}
+
+        {mfaToken && (
+          <chakra.form onSubmit={totpForm.handleSubmit(onSubmitTotp)} noValidate>
+            <Text fontSize="sm" color="fg.muted" mb={3}>
+              Informe o código de 6 dígitos do seu aplicativo autenticador.
+            </Text>
+            <Field.Root invalid={Boolean(totpForm.formState.errors.code)} mb={2}>
+              <Field.Label>Código de verificação</Field.Label>
+              <Input {...totpForm.register('code')} autoFocus inputMode="numeric" maxLength={6} />
+              {totpForm.formState.errors.code && (
+                <Field.ErrorText>{totpForm.formState.errors.code.message}</Field.ErrorText>
+              )}
+            </Field.Root>
+            <Button
+              type="submit"
+              colorPalette="blue"
+              w="full"
+              size="lg"
+              mt={2}
+              loading={isSubmitting}
             >
               Verificar
             </Button>
             <Button
-              fullWidth
-              sx={{ mt: 1 }}
+              variant="ghost"
+              w="full"
+              mt={2}
               onClick={() => {
                 setMfaToken(null)
                 setErrorMessage(null)
@@ -167,9 +183,9 @@ export function LoginPage() {
             >
               Voltar
             </Button>
-          </Box>
+          </chakra.form>
         )}
-      </Paper>
+      </Box>
     </Box>
   )
 }

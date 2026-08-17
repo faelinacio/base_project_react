@@ -2,8 +2,18 @@ import { useState } from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
-import { Alert, Box, Button, Link as MuiLink, Paper, TextField, Typography } from '@mui/material'
+import {
+  Box,
+  Button,
+  chakra,
+  Field,
+  Heading,
+  Input,
+  Link as ChakraLink,
+  Text,
+} from '@chakra-ui/react'
 import { Link as RouterLink, useNavigate } from 'react-router-dom'
+import { AlertMessage } from '@/components/AlertMessage'
 import { useAuth } from '@/hooks/useAuth'
 import { extractErrorMessage, extractFieldErrors } from '@/lib/apiClient'
 
@@ -55,84 +65,84 @@ export function RegisterPage() {
 
   return (
     <Box
-      sx={{
-        minHeight: '100vh',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        p: 2,
-      }}
+      minH="100vh"
+      display="flex"
+      alignItems="center"
+      justifyContent="center"
+      p={4}
+      bg="bg.subtle"
     >
-      <Paper elevation={3} sx={{ p: 4, width: '100%', maxWidth: 420 }}>
-        <Typography variant="h5" component="h1" gutterBottom sx={{ fontWeight: 600 }}>
+      <Box
+        bg="bg.panel"
+        borderWidth="1px"
+        borderColor="border"
+        borderRadius="lg"
+        boxShadow="lg"
+        p={8}
+        w="full"
+        maxW="420px"
+      >
+        <Heading as="h1" size="lg" mb={4}>
           Criar conta
-        </Typography>
+        </Heading>
 
         {errorMessage && (
-          <Alert severity="error" sx={{ mb: 2 }}>
-            {errorMessage}
-          </Alert>
+          <Box mb={4}>
+            <AlertMessage status="error">{errorMessage}</AlertMessage>
+          </Box>
         )}
 
-        <Box component="form" onSubmit={form.handleSubmit(onSubmit)} noValidate>
-          <TextField
-            {...form.register('name')}
-            label="Nome"
-            fullWidth
-            margin="normal"
-            autoComplete="name"
-            autoFocus
-            error={Boolean(form.formState.errors.name)}
-            helperText={form.formState.errors.name?.message}
-          />
-          <TextField
-            {...form.register('email')}
-            label="E-mail"
-            type="email"
-            fullWidth
-            margin="normal"
-            autoComplete="email"
-            error={Boolean(form.formState.errors.email)}
-            helperText={form.formState.errors.email?.message}
-          />
-          <TextField
-            {...form.register('password')}
-            label="Senha"
-            type="password"
-            fullWidth
-            margin="normal"
-            autoComplete="new-password"
-            error={Boolean(form.formState.errors.password)}
-            helperText={form.formState.errors.password?.message}
-          />
-          <TextField
-            {...form.register('confirmPassword')}
-            label="Confirmar senha"
-            type="password"
-            fullWidth
-            margin="normal"
-            autoComplete="new-password"
-            error={Boolean(form.formState.errors.confirmPassword)}
-            helperText={form.formState.errors.confirmPassword?.message}
-          />
+        <chakra.form onSubmit={form.handleSubmit(onSubmit)} noValidate>
+          <Field.Root invalid={Boolean(form.formState.errors.name)} mb={4}>
+            <Field.Label>Nome</Field.Label>
+            <Input {...form.register('name')} autoComplete="name" autoFocus />
+            {form.formState.errors.name && (
+              <Field.ErrorText>{form.formState.errors.name.message}</Field.ErrorText>
+            )}
+          </Field.Root>
+          <Field.Root invalid={Boolean(form.formState.errors.email)} mb={4}>
+            <Field.Label>E-mail</Field.Label>
+            <Input {...form.register('email')} type="email" autoComplete="email" />
+            {form.formState.errors.email && (
+              <Field.ErrorText>{form.formState.errors.email.message}</Field.ErrorText>
+            )}
+          </Field.Root>
+          <Field.Root invalid={Boolean(form.formState.errors.password)} mb={4}>
+            <Field.Label>Senha</Field.Label>
+            <Input {...form.register('password')} type="password" autoComplete="new-password" />
+            {form.formState.errors.password && (
+              <Field.ErrorText>{form.formState.errors.password.message}</Field.ErrorText>
+            )}
+          </Field.Root>
+          <Field.Root invalid={Boolean(form.formState.errors.confirmPassword)} mb={2}>
+            <Field.Label>Confirmar senha</Field.Label>
+            <Input
+              {...form.register('confirmPassword')}
+              type="password"
+              autoComplete="new-password"
+            />
+            {form.formState.errors.confirmPassword && (
+              <Field.ErrorText>{form.formState.errors.confirmPassword.message}</Field.ErrorText>
+            )}
+          </Field.Root>
           <Button
             type="submit"
-            variant="contained"
-            fullWidth
-            size="large"
-            sx={{ mt: 2 }}
-            disabled={isSubmitting}
+            colorPalette="blue"
+            w="full"
+            size="lg"
+            mt={2}
+            loading={isSubmitting}
           >
             Criar conta
           </Button>
-          <Typography variant="body2" sx={{ mt: 2, textAlign: 'center' }}>
+          <Text fontSize="sm" mt={4} textAlign="center">
             Já tem uma conta?{' '}
-            <MuiLink component={RouterLink} to="/login">
-              Entrar
-            </MuiLink>
-          </Typography>
-        </Box>
-      </Paper>
+            <ChakraLink asChild color="blue.600">
+              <RouterLink to="/login">Entrar</RouterLink>
+            </ChakraLink>
+          </Text>
+        </chakra.form>
+      </Box>
     </Box>
   )
 }

@@ -1,6 +1,1 @@
-import { createTheme } from '@mui/material/styles'
-
-export const theme = createTheme({
-  colorSchemes: { light: true, dark: true },
-  shape: { borderRadius: 8 },
-})
+export { defaultSystem as system } from '@chakra-ui/react'

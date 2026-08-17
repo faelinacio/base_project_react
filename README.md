@@ -8,7 +8,7 @@ Projeto React inicializado do zero com as ferramentas e práticas atuais de merc
 - [Vite](https://vite.dev/) — build tool e dev server
 - [React 19](https://react.dev/) + [TypeScript](https://www.typescriptlang.org/)
 - [React Router](https://reactrouter.com/) — roteamento, com rotas protegidas e code-splitting por página
-- [Material UI](https://mui.com/) — componentes de interface
+- [Chakra UI](https://www.chakra-ui.com/) — componentes de interface
 - [React Hook Form](https://react-hook-form.com/) + [Zod](https://zod.dev/) — formulários e validação
 - [Axios](https://axios-http.com/) — cliente HTTP, com renovação automática de token
 - [ESLint](https://eslint.org/) + [Prettier](https://prettier.io/) — lint e formatação
@@ -21,7 +21,7 @@ src/
   assets/       arquivos estáticos (imagens, fontes, etc.)
   components/   componentes reutilizáveis de UI (TopBar, Layout, guards de rota)
   hooks/        hooks customizados (useAuth)
-  lib/          cliente HTTP, tema do MUI, utilitários
+  lib/          cliente HTTP, tema do Chakra UI, utilitários
   pages/        componentes de página, um por rota
   providers/    context providers (AuthProvider)
   routes/       definição das rotas da aplicação

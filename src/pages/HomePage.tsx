@@ -1,5 +1,6 @@
-import { Alert, Paper, Stack, Typography } from '@mui/material'
+import { Box, Heading, Stack, Text } from '@chakra-ui/react'
 import { useLocation } from 'react-router-dom'
+import { AlertMessage } from '@/components/AlertMessage'
 import { useAuth } from '@/hooks/useAuth'
 
 export function HomePage() {
@@ -10,20 +11,20 @@ export function HomePage() {
   )
 
   return (
-    <Stack spacing={3}>
+    <Stack gap={6}>
       {justRegistered && (
-        <Alert severity="success">
+        <AlertMessage status="success">
           Conta criada com sucesso! Enviamos um link de verificação para o seu e-mail.
-        </Alert>
+        </AlertMessage>
       )}
-      <Paper variant="outlined" sx={{ p: 4 }}>
-        <Typography variant="h4" component="h1" gutterBottom sx={{ fontWeight: 600 }}>
+      <Box borderWidth="1px" borderColor="border" borderRadius="lg" p={8}>
+        <Heading as="h1" size="xl" mb={2}>
           Olá, {user?.name}
-        </Typography>
-        <Typography variant="body1" color="text.secondary">
+        </Heading>
+        <Text color="fg.muted">
           Você está autenticado no base_project_react, integrado ao base_project_spring_boot.
-        </Typography>
-      </Paper>
+        </Text>
+      </Box>
     </Stack>
   )
 }

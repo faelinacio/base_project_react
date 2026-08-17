@@ -1,17 +1,19 @@
 import { useState } from 'react'
 import axios from 'axios'
 import {
-  Alert,
+  Badge,
   Box,
   Button,
   Card,
-  CardContent,
-  Chip,
-  Divider,
+  Heading,
+  HStack,
+  Image,
+  Input,
+  Separator,
   Stack,
-  TextField,
-  Typography,
-} from '@mui/material'
+  Text,
+} from '@chakra-ui/react'
+import { AlertMessage } from '@/components/AlertMessage'
 import { useAuth } from '@/hooks/useAuth'
 import { extractErrorMessage } from '@/lib/apiClient'
 import { totpService } from '@/services/totpService'
@@ -92,75 +94,76 @@ export function SettingsPage() {
   }
 
   return (
-    <Stack spacing={3}>
-      <Typography variant="h4" component="h1" sx={{ fontWeight: 600 }}>
+    <Stack gap={6}>
+      <Heading as="h1" size="xl">
         Configurações
-      </Typography>
+      </Heading>
 
-      <Card variant="outlined">
-        <CardContent>
-          <Typography variant="h6" gutterBottom>
+      <Card.Root>
+        <Card.Body>
+          <Heading as="h2" size="md" mb={3}>
             Perfil
-          </Typography>
-          <Stack spacing={1}>
+          </Heading>
+          <Stack gap={3}>
             <Box>
-              <Typography variant="caption" color="text.secondary">
+              <Text fontSize="xs" color="fg.muted">
                 Nome
-              </Typography>
-              <Typography variant="body1">{user.name}</Typography>
+              </Text>
+              <Text>{user.name}</Text>
             </Box>
             <Box>
-              <Typography variant="caption" color="text.secondary">
+              <Text fontSize="xs" color="fg.muted">
                 E-mail
-              </Typography>
-              <Typography variant="body1">{user.email}</Typography>
+              </Text>
+              <Text>{user.email}</Text>
             </Box>
             <Box>
-              <Typography variant="caption" color="text.secondary">
+              <Text fontSize="xs" color="fg.muted" mb={1}>
                 Perfil de acesso
-              </Typography>
-              <Box>
-                <Chip label={user.role} size="small" />
-              </Box>
+              </Text>
+              <Badge>{user.role}</Badge>
             </Box>
           </Stack>
-        </CardContent>
-      </Card>
+        </Card.Body>
+      </Card.Root>
 
-      <Card variant="outlined">
-        <CardContent>
-          <Stack
-            direction="row"
-            sx={{ alignItems: 'center', justifyContent: 'space-between', mb: 1 }}
-          >
-            <Typography variant="h6">Autenticação de dois fatores (2FA)</Typography>
-            {enabledState === 'enabled' && <Chip label="Ativada" color="success" size="small" />}
-          </Stack>
-          <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+      <Card.Root>
+        <Card.Body>
+          <HStack justify="space-between" mb={1}>
+            <Heading as="h2" size="md">
+              Autenticação de dois fatores (2FA)
+            </Heading>
+            {enabledState === 'enabled' && <Badge colorPalette="green">Ativada</Badge>}
+          </HStack>
+          <Text fontSize="sm" color="fg.muted" mb={4}>
             Proteja sua conta exigindo um código do seu aplicativo autenticador a cada login.
-          </Typography>
+          </Text>
 
           {errorMessage && (
-            <Alert severity="error" sx={{ mb: 2 }} onClose={() => setErrorMessage(null)}>
-              {errorMessage}
-            </Alert>
+            <Box mb={4}>
+              <AlertMessage status="error" onClose={() => setErrorMessage(null)}>
+                {errorMessage}
+              </AlertMessage>
+            </Box>
           )}
           {successMessage && (
-            <Alert severity="success" sx={{ mb: 2 }} onClose={() => setSuccessMessage(null)}>
-              {successMessage}
-            </Alert>
+            <Box mb={4}>
+              <AlertMessage status="success" onClose={() => setSuccessMessage(null)}>
+                {successMessage}
+              </AlertMessage>
+            </Box>
           )}
 
           {mode === 'idle' && enabledState !== 'enabled' && (
-            <Button variant="contained" onClick={handleStartEnroll} disabled={isSubmitting}>
+            <Button colorPalette="blue" onClick={handleStartEnroll} loading={isSubmitting}>
               Ativar 2FA
             </Button>
           )}
 
           {mode === 'idle' && enabledState === 'enabled' && (
             <Button
-              variant="outlined"
-              color="error"
+              variant="outline"
+              colorPalette="red"
               onClick={() => setMode('disable')}
               disabled={isSubmitting}
             >
@@ -169,85 +172,77 @@ export function SettingsPage() {
           )}
 
           {mode === 'enroll' && setupData && (
-            <Stack spacing={2} sx={{ mt: 1 }}>
-              <Typography variant="body2">
+            <Stack gap={4} mt={1}>
+              <Text fontSize="sm">
                 1. Escaneie o QR code abaixo com seu aplicativo autenticador (Google Authenticator,
                 Authy, etc.).
-              </Typography>
-              <Box
-                component="img"
-                src={setupData.qrCodeImage}
-                alt="QR code do TOTP"
-                sx={{ width: 180, height: 180 }}
-              />
-              <Typography variant="body2">Ou digite o código manualmente:</Typography>
-              <Typography
-                variant="body2"
-                sx={{
-                  fontFamily: 'monospace',
-                  bgcolor: 'action.hover',
-                  p: 1,
-                  borderRadius: 1,
-                  wordBreak: 'break-all',
-                }}
+              </Text>
+              <Image src={setupData.qrCodeImage} alt="QR code do TOTP" boxSize="180px" />
+              <Text fontSize="sm">Ou digite o código manualmente:</Text>
+              <Text
+                fontSize="sm"
+                fontFamily="mono"
+                bg="bg.muted"
+                p={2}
+                borderRadius="md"
+                wordBreak="break-all"
               >
                 {setupData.secret}
-              </Typography>
-              <Typography variant="body2">
-                2. Informe o código de 6 dígitos gerado para confirmar:
-              </Typography>
-              <TextField
-                label="Código de verificação"
+              </Text>
+              <Text fontSize="sm">2. Informe o código de 6 dígitos gerado para confirmar:</Text>
+              <Input
                 value={code}
                 onChange={(event) => setCode(event.target.value)}
-                slotProps={{ htmlInput: { inputMode: 'numeric', maxLength: 6 } }}
-                sx={{ maxWidth: 220 }}
+                inputMode="numeric"
+                maxLength={6}
+                maxW="220px"
               />
-              <Divider />
-              <Stack direction="row" spacing={1}>
+              <Separator />
+              <HStack>
                 <Button
-                  variant="contained"
+                  colorPalette="blue"
                   onClick={handleConfirmEnable}
-                  disabled={isSubmitting || code.length !== 6}
+                  loading={isSubmitting}
+                  disabled={code.length !== 6}
                 >
                   Confirmar e ativar
                 </Button>
-                <Button onClick={resetTotpForm} disabled={isSubmitting}>
+                <Button variant="ghost" onClick={resetTotpForm} disabled={isSubmitting}>
                   Cancelar
                 </Button>
-              </Stack>
+              </HStack>
             </Stack>
           )}
 
           {mode === 'disable' && (
-            <Stack spacing={2} sx={{ mt: 1 }}>
-              <Typography variant="body2">
+            <Stack gap={4} mt={1}>
+              <Text fontSize="sm">
                 Informe um código atual do seu aplicativo autenticador para desativar o 2FA.
-              </Typography>
-              <TextField
-                label="Código de verificação"
+              </Text>
+              <Input
                 value={code}
                 onChange={(event) => setCode(event.target.value)}
-                slotProps={{ htmlInput: { inputMode: 'numeric', maxLength: 6 } }}
-                sx={{ maxWidth: 220 }}
+                inputMode="numeric"
+                maxLength={6}
+                maxW="220px"
               />
-              <Stack direction="row" spacing={1}>
+              <HStack>
                 <Button
-                  variant="contained"
-                  color="error"
+                  colorPalette="red"
                   onClick={handleConfirmDisable}
-                  disabled={isSubmitting || code.length !== 6}
+                  loading={isSubmitting}
+                  disabled={code.length !== 6}
                 >
                   Confirmar desativação
                 </Button>
-                <Button onClick={resetTotpForm} disabled={isSubmitting}>
+                <Button variant="ghost" onClick={resetTotpForm} disabled={isSubmitting}>
                   Cancelar
                 </Button>
-              </Stack>
+              </HStack>
             </Stack>
           )}
-        </CardContent>
-      </Card>
+        </Card.Body>
+      </Card.Root>
     </Stack>
   )
 }

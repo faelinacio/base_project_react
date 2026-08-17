@@ -1,23 +1,13 @@
 import { Suspense, type ReactNode } from 'react'
-import { Backdrop, CircularProgress } from '@mui/material'
 import { createBrowserRouter } from 'react-router-dom'
+import { FullScreenSpinner } from '@/components/FullScreenSpinner'
 import { Layout } from '@/components/Layout'
 import { PublicOnlyRoute } from '@/components/PublicOnlyRoute'
 import { RequireAuth } from '@/components/RequireAuth'
 import { HomePage, LoginPage, NotFoundPage, RegisterPage, SettingsPage } from '@/routes/lazyPages'
 
 function withSuspense(element: ReactNode) {
-  return (
-    <Suspense
-      fallback={
-        <Backdrop open>
-          <CircularProgress color="inherit" />
-        </Backdrop>
-      }
-    >
-      {element}
-    </Suspense>
-  )
+  return <Suspense fallback={<FullScreenSpinner />}>{element}</Suspense>
 }
 
 export const router = createBrowserRouter([

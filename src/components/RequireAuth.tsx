@@ -1,5 +1,5 @@
-import { Backdrop, CircularProgress } from '@mui/material'
 import { Navigate, Outlet, useLocation } from 'react-router-dom'
+import { FullScreenSpinner } from '@/components/FullScreenSpinner'
 import { useAuth } from '@/hooks/useAuth'
 
 export function RequireAuth() {
@@ -7,11 +7,7 @@ export function RequireAuth() {
   const location = useLocation()
 
   if (isLoading) {
-    return (
-      <Backdrop open>
-        <CircularProgress color="inherit" />
-      </Backdrop>
-    )
+    return <FullScreenSpinner />
   }
 
   if (!isAuthenticated) {

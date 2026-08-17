@@ -1,99 +1,89 @@
-import { useState, type MouseEvent } from 'react'
 import {
-  AppBar,
   Avatar,
   Box,
   Button,
-  Divider,
-  ListItemIcon,
+  HStack,
+  Link as ChakraLink,
   Menu,
-  MenuItem,
-  Toolbar,
-  Typography,
-} from '@mui/material'
-import LogoutIcon from '@mui/icons-material/Logout'
-import SettingsIcon from '@mui/icons-material/Settings'
+  Portal,
+  Text,
+} from '@chakra-ui/react'
+import { LuLogOut, LuSettings } from 'react-icons/lu'
 import { Link as RouterLink, useNavigate } from 'react-router-dom'
 import { useAuth } from '@/hooks/useAuth'
-
-function initialsOf(name: string): string {
-  return name
-    .split(' ')
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((part) => part[0]?.toUpperCase())
-    .join('')
-}
 
 export function TopBar() {
   const { user, logout } = useAuth()
   const navigate = useNavigate()
-  const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null)
-
-  const handleOpenMenu = (event: MouseEvent<HTMLElement>) => setAnchorEl(event.currentTarget)
-  const handleCloseMenu = () => setAnchorEl(null)
 
   const handleLogout = async () => {
-    handleCloseMenu()
     await logout()
     navigate('/login', { replace: true })
   }
 
   return (
-    <AppBar position="static" color="primary" enableColorOnDark>
-      <Toolbar>
-        <Typography
-          variant="h6"
-          component={RouterLink}
-          to="/"
-          sx={{ flexGrow: 1, color: 'inherit', textDecoration: 'none', fontWeight: 600 }}
+    <Box as="header" bg="blue.600" color="white" px={4} py={3}>
+      <HStack justify="space-between">
+        <ChakraLink
+          asChild
+          fontWeight="bold"
+          fontSize="lg"
+          color="white"
+          _hover={{ textDecoration: 'none', color: 'white' }}
         >
-          base_project_react
-        </Typography>
+          <RouterLink to="/">base_project_react</RouterLink>
+        </ChakraLink>
 
-        <Button component={RouterLink} to="/" color="inherit">
-          Início
-        </Button>
-        <Button component={RouterLink} to="/settings" color="inherit">
-          Configurações
-        </Button>
+        <HStack gap={2}>
+          <Button asChild variant="ghost" color="white" _hover={{ bg: 'whiteAlpha.300' }}>
+            <RouterLink to="/">Início</RouterLink>
+          </Button>
+          <Button asChild variant="ghost" color="white" _hover={{ bg: 'whiteAlpha.300' }}>
+            <RouterLink to="/settings">Configurações</RouterLink>
+          </Button>
 
-        {user && (
-          <Box sx={{ ml: 2 }}>
-            <Avatar
-              onClick={handleOpenMenu}
-              sx={{ cursor: 'pointer', width: 36, height: 36, bgcolor: 'secondary.main' }}
-            >
-              {initialsOf(user.name) || user.email[0]?.toUpperCase()}
-            </Avatar>
-            <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleCloseMenu}>
-              <MenuItem disabled sx={{ opacity: '1 !important' }}>
-                <Box>
-                  <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                    {user.name}
-                  </Typography>
-                  <Typography variant="caption" color="text.secondary">
-                    {user.email}
-                  </Typography>
+          {user && (
+            <Menu.Root>
+              <Menu.Trigger asChild>
+                <Box
+                  as="button"
+                  ml={2}
+                  borderRadius="full"
+                  cursor="pointer"
+                  aria-label="Menu do usuário"
+                >
+                  <Avatar.Root size="sm" bg="purple.500" color="white">
+                    <Avatar.Fallback name={user.name || user.email} />
+                  </Avatar.Root>
                 </Box>
-              </MenuItem>
-              <Divider />
-              <MenuItem component={RouterLink} to="/settings" onClick={handleCloseMenu}>
-                <ListItemIcon>
-                  <SettingsIcon fontSize="small" />
-                </ListItemIcon>
-                Configurações
-              </MenuItem>
-              <MenuItem onClick={handleLogout}>
-                <ListItemIcon>
-                  <LogoutIcon fontSize="small" />
-                </ListItemIcon>
-                Sair
-              </MenuItem>
-            </Menu>
-          </Box>
-        )}
-      </Toolbar>
-    </AppBar>
+              </Menu.Trigger>
+              <Portal>
+                <Menu.Positioner>
+                  <Menu.Content>
+                    <Box px={3} py={2}>
+                      <Text fontSize="sm" fontWeight="semibold">
+                        {user.name}
+                      </Text>
+                      <Text fontSize="xs" color="fg.muted">
+                        {user.email}
+                      </Text>
+                    </Box>
+                    <Menu.Separator />
+                    <Menu.Item value="settings" asChild>
+                      <RouterLink to="/settings">
+                        <LuSettings /> Configurações
+                      </RouterLink>
+                    </Menu.Item>
+                    <Menu.Item value="logout" onSelect={handleLogout}>
+                      <LuLogOut /> Sair
+                    </Menu.Item>
+                  </Menu.Content>
+                </Menu.Positioner>
+              </Portal>
+            </Menu.Root>
+          )}
+        </HStack>
+      </HStack>
+    </Box>
   )
 }

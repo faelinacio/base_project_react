@@ -1,4 +1,4 @@
-import { Container } from '@mui/material'
+import { Container } from '@chakra-ui/react'
 import { Outlet } from 'react-router-dom'
 import { TopBar } from '@/components/TopBar'
 
@@ -6,7 +6,7 @@ export function Layout() {
   return (
     <div>
       <TopBar />
-      <Container maxWidth="md" sx={{ py: 4 }}>
+      <Container maxW="768px" py={8}>
         <Outlet />
       </Container>
     </div>
