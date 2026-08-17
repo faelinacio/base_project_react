@@ -1,12 +1,21 @@
-import { Link } from 'react-router-dom'
+import { Box, Button, Heading, Text } from '@chakra-ui/react'
+import { Link as RouterLink } from 'react-router-dom'
 
 export function NotFoundPage() {
   return (
-    <section>
-      <h1>Página não encontrada</h1>
-      <p>
-        Volte para a <Link to="/">página inicial</Link>.
-      </p>
-    </section>
+    <Box
+      minH="100vh"
+      display="flex"
+      flexDirection="column"
+      alignItems="center"
+      justifyContent="center"
+      gap={4}
+    >
+      <Heading size="3xl">404</Heading>
+      <Text color="fg.muted">Página não encontrada.</Text>
+      <Button asChild colorPalette="blue">
+        <RouterLink to="/">Voltar para o início</RouterLink>
+      </Button>
+    </Box>
   )
 }

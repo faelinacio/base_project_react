@@ -1,15 +1,35 @@
+import { Suspense, type ReactNode } from 'react'
 import { createBrowserRouter } from 'react-router-dom'
+import { FullScreenSpinner } from '@/components/FullScreenSpinner'
 import { Layout } from '@/components/Layout'
-import { HomePage } from '@/pages/HomePage'
-import { NotFoundPage } from '@/pages/NotFoundPage'
+import { PublicOnlyRoute } from '@/components/PublicOnlyRoute'
+import { RequireAuth } from '@/components/RequireAuth'
+import { HomePage, LoginPage, NotFoundPage, RegisterPage, SettingsPage } from '@/routes/lazyPages'
+
+function withSuspense(element: ReactNode) {
+  return <Suspense fallback={<FullScreenSpinner />}>{element}</Suspense>
+}
 
 export const router = createBrowserRouter([
   {
-    path: '/',
-    element: <Layout />,
+    element: <PublicOnlyRoute />,
     children: [
-      { index: true, element: <HomePage /> },
-      { path: '*', element: <NotFoundPage /> },
+      { path: '/login', element: withSuspense(<LoginPage />) },
+      { path: '/register', element: withSuspense(<RegisterPage />) },
     ],
   },
+  {
+    element: <RequireAuth />,
+    children: [
+      {
+        path: '/',
+        element: <Layout />,
+        children: [
+          { index: true, element: withSuspense(<HomePage />) },
+          { path: 'settings', element: withSuspense(<SettingsPage />) },
+        ],
+      },
+    ],
+  },
+  { path: '*', element: withSuspense(<NotFoundPage />) },
 ])

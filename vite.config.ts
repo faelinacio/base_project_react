@@ -11,6 +11,11 @@ export default defineConfig({
       '@': path.resolve(import.meta.dirname, './src'),
     },
   },
+  server: {
+    // Matches the base_project_spring_boot dev profile, which only allows CORS from (and builds
+    // email verification / OAuth2 redirect links pointing at) http://localhost:3000.
+    port: 3000,
+  },
   test: {
     globals: true,
     environment: 'jsdom',
