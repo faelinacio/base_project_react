@@ -1,31 +1,17 @@
 import { useState } from 'react'
 import axios from 'axios'
-import {
-  Badge,
-  Box,
-  Button,
-  Card,
-  Heading,
-  HStack,
-  Image,
-  Input,
-  Separator,
-  Stack,
-  Text,
-} from '@chakra-ui/react'
+import { Badge, Box, Button, Card, Heading, HStack, Image, Input, Separator, Stack, Text } from '@chakra-ui/react'
 import { AlertMessage } from '@/components/AlertMessage'
 import { useAuth } from '@/hooks/useAuth'
 import { extractErrorMessage } from '@/lib/apiClient'
 import { totpService } from '@/services/totpService'
 import type { TotpSetup } from '@/types/auth'
 
-type TotpEnabledState = 'unknown' | 'enabled' | 'disabled'
 type TotpMode = 'idle' | 'enroll' | 'disable'
 
 export function SettingsPage() {
-  const { user } = useAuth()
+  const { user, refreshUser } = useAuth()
 
-  const [enabledState, setEnabledState] = useState<TotpEnabledState>('unknown')
   const [mode, setMode] = useState<TotpMode>('idle')
   const [setupData, setSetupData] = useState<TotpSetup | null>(null)
   const [code, setCode] = useState('')
@@ -51,12 +37,10 @@ export function SettingsPage() {
       setMode('enroll')
     } catch (error) {
       if (axios.isAxiosError(error) && error.response?.status === 409) {
-        setEnabledState('enabled')
+        await refreshUser()
         setErrorMessage('A autenticação de dois fatores já está ativada nesta conta.')
       } else {
-        setErrorMessage(
-          extractErrorMessage(error, 'Não foi possível iniciar a configuração do 2FA.'),
-        )
+        setErrorMessage(extractErrorMessage(error, 'Não foi possível iniciar a configuração do 2FA.'))
       }
     } finally {
       setIsSubmitting(false)
@@ -68,7 +52,7 @@ export function SettingsPage() {
     setIsSubmitting(true)
     try {
       await totpService.enable(code)
-      setEnabledState('enabled')
+      await refreshUser()
       setSuccessMessage('Autenticação de dois fatores ativada com sucesso.')
       resetTotpForm()
     } catch (error) {
@@ -83,7 +67,7 @@ export function SettingsPage() {
     setIsSubmitting(true)
     try {
       await totpService.disable(code)
-      setEnabledState('disabled')
+      await refreshUser()
       setSuccessMessage('Autenticação de dois fatores desativada.')
       resetTotpForm()
     } catch (error) {
@@ -133,7 +117,7 @@ export function SettingsPage() {
             <Heading as="h2" size="md">
               Autenticação de dois fatores (2FA)
             </Heading>
-            {enabledState === 'enabled' && <Badge colorPalette="green">Ativada</Badge>}
+            {user.totpEnabled && <Badge colorPalette="green">Ativada</Badge>}
           </HStack>
           <Text fontSize="sm" color="fg.muted" mb={4}>
             Proteja sua conta exigindo um código do seu aplicativo autenticador a cada login.
@@ -154,19 +138,14 @@ export function SettingsPage() {
             </Box>
           )}
 
-          {mode === 'idle' && enabledState !== 'enabled' && (
+          {mode === 'idle' && !user.totpEnabled && (
             <Button colorPalette="blue" onClick={handleStartEnroll} loading={isSubmitting}>
               Ativar 2FA
             </Button>
           )}
 
-          {mode === 'idle' && enabledState === 'enabled' && (
-            <Button
-              variant="outline"
-              colorPalette="red"
-              onClick={() => setMode('disable')}
-              disabled={isSubmitting}
-            >
+          {mode === 'idle' && user.totpEnabled && (
+            <Button variant="outline" colorPalette="red" onClick={() => setMode('disable')} disabled={isSubmitting}>
               Desativar 2FA
             </Button>
           )}
@@ -174,19 +153,11 @@ export function SettingsPage() {
           {mode === 'enroll' && setupData && (
             <Stack gap={4} mt={1}>
               <Text fontSize="sm">
-                1. Escaneie o QR code abaixo com seu aplicativo autenticador (Google Authenticator,
-                Authy, etc.).
+                1. Escaneie o QR code abaixo com seu aplicativo autenticador (Google Authenticator, Authy, etc.).
               </Text>
               <Image src={setupData.qrCodeImage} alt="QR code do TOTP" boxSize="180px" />
               <Text fontSize="sm">Ou digite o código manualmente:</Text>
-              <Text
-                fontSize="sm"
-                fontFamily="mono"
-                bg="bg.muted"
-                p={2}
-                borderRadius="md"
-                wordBreak="break-all"
-              >
+              <Text fontSize="sm" fontFamily="mono" bg="bg.muted" p={2} borderRadius="md" wordBreak="break-all">
                 {setupData.secret}
               </Text>
               <Text fontSize="sm">2. Informe o código de 6 dígitos gerado para confirmar:</Text>
@@ -199,12 +170,7 @@ export function SettingsPage() {
               />
               <Separator />
               <HStack>
-                <Button
-                  colorPalette="blue"
-                  onClick={handleConfirmEnable}
-                  loading={isSubmitting}
-                  disabled={code.length !== 6}
-                >
+                <Button colorPalette="blue" onClick={handleConfirmEnable} loading={isSubmitting} disabled={code.length !== 6}>
                   Confirmar e ativar
                 </Button>
                 <Button variant="ghost" onClick={resetTotpForm} disabled={isSubmitting}>
@@ -216,9 +182,7 @@ export function SettingsPage() {
 
           {mode === 'disable' && (
             <Stack gap={4} mt={1}>
-              <Text fontSize="sm">
-                Informe um código atual do seu aplicativo autenticador para desativar o 2FA.
-              </Text>
+              <Text fontSize="sm">Informe um código atual do seu aplicativo autenticador para desativar o 2FA.</Text>
               <Input
                 value={code}
                 onChange={(event) => setCode(event.target.value)}

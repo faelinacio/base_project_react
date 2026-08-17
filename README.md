@@ -54,7 +54,7 @@ Endpoints consumidos (`src/services/`):
 | `POST /api/auth/login/totp`       | Confirmação do login quando o 2FA está ativo    |
 | `POST /api/auth/refresh`          | Renovação do par de tokens (rotação automática) |
 | `POST /api/auth/logout`           | Logout                                          |
-| `GET /api/users/me`               | Perfil do usuário autenticado                   |
+| `GET /api/users/me`               | Perfil do usuário autenticado (inclui `totpEnabled`) |
 | `POST /api/users/me/totp/setup`   | Início do cadastro de 2FA (QR code + secret)    |
 | `POST /api/users/me/totp/enable`  | Confirmação e ativação do 2FA                   |
 | `POST /api/users/me/totp/disable` | Desativação do 2FA                              |
@@ -63,10 +63,9 @@ O `accessToken` é mantido em memória e o `refreshToken` em `localStorage`; o c
 (`src/lib/apiClient.ts`) intercepta respostas `401` e tenta renovar o token automaticamente antes
 de repetir a requisição, deslogando o usuário caso a renovação falhe.
 
-> **Observação:** o endpoint `GET /api/users/me` do backend ainda não expõe se o 2FA está ativo
-> (`totpEnabled`). A tela de Configurações contorna isso tratando o retorno `409 Conflict` de
-> `POST /api/users/me/totp/setup` como "2FA já ativado". Para um estado inicial 100% preciso após
-> recarregar a página, adicione o campo `totpEnabled` ao `UserResponse` do backend.
+> **Requisito de backend:** a tela de Configurações lê `totpEnabled` de `GET /api/users/me` para
+> saber se o 2FA já está ativo. Isso requer a branch `claude/add-totp-enabled-field` do
+> base_project_spring_boot (adiciona o campo ao `UserResponse`).
 
 ## Scripts
 
