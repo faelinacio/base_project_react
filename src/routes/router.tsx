@@ -4,7 +4,15 @@ import { FullScreenSpinner } from '@/components/FullScreenSpinner'
 import { Layout } from '@/components/Layout'
 import { PublicOnlyRoute } from '@/components/PublicOnlyRoute'
 import { RequireAuth } from '@/components/RequireAuth'
-import { HomePage, LoginPage, NotFoundPage, RegisterPage, SettingsPage } from '@/routes/lazyPages'
+import {
+  HomePage,
+  LoginPage,
+  NotFoundPage,
+  OAuth2CallbackPage,
+  RegisterPage,
+  SettingsPage,
+  VerifyEmailPage,
+} from '@/routes/lazyPages'
 
 function withSuspense(element: ReactNode) {
   return <Suspense fallback={<FullScreenSpinner />}>{element}</Suspense>
@@ -31,5 +39,7 @@ export const router = createBrowserRouter([
       },
     ],
   },
+  { path: '/verify-email', element: withSuspense(<VerifyEmailPage />) },
+  { path: '/oauth2/callback', element: withSuspense(<OAuth2CallbackPage />) },
   { path: '*', element: withSuspense(<NotFoundPage />) },
 ])

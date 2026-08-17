@@ -14,20 +14,16 @@ import {
 } from '@chakra-ui/react'
 import { Link as RouterLink, useLocation, useNavigate, type Location } from 'react-router-dom'
 import { AlertMessage } from '@/components/AlertMessage'
+import { TotpCodeForm } from '@/components/TotpCodeForm'
 import { useAuth } from '@/hooks/useAuth'
-import { extractErrorMessage } from '@/lib/apiClient'
+import { baseURL, extractErrorMessage } from '@/lib/apiClient'
 
 const credentialsSchema = z.object({
   email: z.string().min(1, 'Informe o e-mail').email('E-mail inválido'),
   password: z.string().min(1, 'Informe a senha'),
 })
 
-const totpSchema = z.object({
-  code: z.string().min(6, 'O código deve ter 6 dígitos').max(6, 'O código deve ter 6 dígitos'),
-})
-
 type CredentialsForm = z.infer<typeof credentialsSchema>
-type TotpForm = z.infer<typeof totpSchema>
 
 export function LoginPage() {
   const { login, loginTotp } = useAuth()
@@ -40,7 +36,6 @@ export function LoginPage() {
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   const credentialsForm = useForm<CredentialsForm>({ resolver: zodResolver(credentialsSchema) })
-  const totpForm = useForm<TotpForm>({ resolver: zodResolver(totpSchema) })
 
   const onSubmitCredentials = async (values: CredentialsForm) => {
     setErrorMessage(null)
@@ -61,12 +56,12 @@ export function LoginPage() {
     }
   }
 
-  const onSubmitTotp = async (values: TotpForm) => {
+  const onSubmitTotp = async (code: string) => {
     if (!mfaToken) return
     setErrorMessage(null)
     setIsSubmitting(true)
     try {
-      await loginTotp(mfaToken, values.code)
+      await loginTotp(mfaToken, code)
       navigate(redirectTo, { replace: true })
     } catch (error) {
       setErrorMessage(extractErrorMessage(error, 'Código inválido ou expirado.'))
@@ -141,6 +136,9 @@ export function LoginPage() {
             >
               Entrar
             </Button>
+            <Button asChild variant="outline" w="full" mt={4}>
+              <a href={`${baseURL}/oauth2/authorization/google`}>Entrar com Google</a>
+            </Button>
             <Text fontSize="sm" mt={4} textAlign="center">
               Não tem uma conta?{' '}
               <ChakraLink asChild color="blue.600">
@@ -151,39 +149,14 @@ export function LoginPage() {
         )}
 
         {mfaToken && (
-          <chakra.form onSubmit={totpForm.handleSubmit(onSubmitTotp)} noValidate>
-            <Text fontSize="sm" color="fg.muted" mb={3}>
-              Informe o código de 6 dígitos do seu aplicativo autenticador.
-            </Text>
-            <Field.Root invalid={Boolean(totpForm.formState.errors.code)} mb={2}>
-              <Field.Label>Código de verificação</Field.Label>
-              <Input {...totpForm.register('code')} autoFocus inputMode="numeric" maxLength={6} />
-              {totpForm.formState.errors.code && (
-                <Field.ErrorText>{totpForm.formState.errors.code.message}</Field.ErrorText>
-              )}
-            </Field.Root>
-            <Button
-              type="submit"
-              colorPalette="blue"
-              w="full"
-              size="lg"
-              mt={2}
-              loading={isSubmitting}
-            >
-              Verificar
-            </Button>
-            <Button
-              variant="ghost"
-              w="full"
-              mt={2}
-              onClick={() => {
-                setMfaToken(null)
-                setErrorMessage(null)
-              }}
-            >
-              Voltar
-            </Button>
-          </chakra.form>
+          <TotpCodeForm
+            isSubmitting={isSubmitting}
+            onSubmit={onSubmitTotp}
+            onBack={() => {
+              setMfaToken(null)
+              setErrorMessage(null)
+            }}
+          />
         )}
       </Box>
     </Box>

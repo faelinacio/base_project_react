@@ -6,7 +6,10 @@ import { authService } from '@/services/authService'
 import { userService } from '@/services/userService'
 import type { AuthTokens, User } from '@/types/auth'
 
-async function applyTokens(tokens: AuthTokens, setUser: (user: User) => void): Promise<void> {
+async function applyTokens(
+  tokens: Pick<AuthTokens, 'accessToken' | 'refreshToken'>,
+  setUser: (user: User) => void,
+): Promise<void> {
   setAccessToken(tokens.accessToken)
   tokenStorage.setRefreshToken(tokens.refreshToken)
   const user = await userService.getCurrentUser()
@@ -78,6 +81,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(await userService.getCurrentUser())
   }, [])
 
+  const applyGoogleTokens = useCallback(async (accessToken: string, refreshToken: string) => {
+    await applyTokens({ accessToken, refreshToken }, setUser)
+  }, [])
+
   const value = useMemo<AuthContextValue>(
     () => ({
       user,
@@ -88,8 +95,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       register,
       logout,
       refreshUser,
+      applyGoogleTokens,
     }),
-    [user, isLoading, login, loginTotp, register, logout, refreshUser],
+    [user, isLoading, login, loginTotp, register, logout, refreshUser, applyGoogleTokens],
   )
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>

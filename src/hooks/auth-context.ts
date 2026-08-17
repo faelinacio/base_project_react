@@ -15,6 +15,8 @@ export interface AuthContextValue {
   register: (name: string, email: string, password: string) => Promise<void>
   logout: () => Promise<void>
   refreshUser: () => Promise<void>
+  /** Applies the token pair issued by the Google OAuth2 redirect (see OAuth2CallbackPage). */
+  applyGoogleTokens: (accessToken: string, refreshToken: string) => Promise<void>
 }
 
 export const AuthContext = createContext<AuthContextValue | null>(null)
