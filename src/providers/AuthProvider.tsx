@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react'
-import { apiClient, setAccessToken, setOnAuthFailure } from '@/lib/apiClient'
+import { refreshAccessToken, setAccessToken, setOnAuthFailure } from '@/lib/apiClient'
 import { tokenStorage } from '@/lib/tokenStorage'
 import { AuthContext, type AuthContextValue, type LoginOutcome } from '@/hooks/auth-context'
 import { authService } from '@/services/authService'
@@ -29,17 +29,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [clearSession])
 
   useEffect(() => {
-    const refreshToken = tokenStorage.getRefreshToken()
-    if (!refreshToken) {
+    if (!tokenStorage.getRefreshToken()) {
       return
     }
 
-    apiClient
-      .post<AuthTokens>('/api/auth/refresh', { refreshToken })
-      .then(({ data }) => applyTokens(data, setUser))
-      .catch(clearSession)
+    // refreshAccessToken() dedupes concurrent calls (e.g. React StrictMode's double effect
+    // invocation in dev), so this never races itself into rotating the refresh token twice.
+    // It only clears the session on a definite 401 (invalid refresh token) via onAuthFailure;
+    // a transient failure (network error, 5xx) just leaves isLoading false without wiping an
+    // otherwise-valid refresh token, so the user can retry on the next reload.
+    refreshAccessToken()
+      .then(() => userService.getCurrentUser())
+      .then(setUser)
+      .catch(() => undefined)
       .finally(() => setIsLoading(false))
-  }, [clearSession])
+  }, [])
 
   const login = useCallback(async (email: string, password: string): Promise<LoginOutcome> => {
     const result = await authService.login({ email, password })

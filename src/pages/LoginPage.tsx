@@ -12,7 +12,7 @@ import {
   Link as ChakraLink,
   Text,
 } from '@chakra-ui/react'
-import { Link as RouterLink, useLocation, useNavigate } from 'react-router-dom'
+import { Link as RouterLink, useLocation, useNavigate, type Location } from 'react-router-dom'
 import { AlertMessage } from '@/components/AlertMessage'
 import { useAuth } from '@/hooks/useAuth'
 import { extractErrorMessage } from '@/lib/apiClient'
@@ -33,7 +33,7 @@ export function LoginPage() {
   const { login, loginTotp } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
-  const redirectTo = (location.state as { from?: Location })?.from?.pathname ?? '/'
+  const redirectTo = (location.state as { from?: Location } | null)?.from?.pathname ?? '/'
 
   const [mfaToken, setMfaToken] = useState<string | null>(null)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)

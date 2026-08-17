@@ -9,17 +9,11 @@ import {
   Text,
 } from '@chakra-ui/react'
 import { LuLogOut, LuSettings } from 'react-icons/lu'
-import { Link as RouterLink, useNavigate } from 'react-router-dom'
+import { Link as RouterLink } from 'react-router-dom'
 import { useAuth } from '@/hooks/useAuth'
 
 export function TopBar() {
   const { user, logout } = useAuth()
-  const navigate = useNavigate()
-
-  const handleLogout = async () => {
-    await logout()
-    navigate('/login', { replace: true })
-  }
 
   return (
     <Box as="header" bg="blue.600" color="white" px={4} py={3}>
@@ -74,7 +68,7 @@ export function TopBar() {
                         <LuSettings /> Configurações
                       </RouterLink>
                     </Menu.Item>
-                    <Menu.Item value="logout" onSelect={handleLogout}>
+                    <Menu.Item value="logout" onSelect={() => logout()}>
                       <LuLogOut /> Sair
                     </Menu.Item>
                   </Menu.Content>

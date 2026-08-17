@@ -1,11 +1,12 @@
 import { Navigate, Outlet } from 'react-router-dom'
+import { FullScreenSpinner } from '@/components/FullScreenSpinner'
 import { useAuth } from '@/hooks/useAuth'
 
 export function PublicOnlyRoute() {
   const { isAuthenticated, isLoading } = useAuth()
 
   if (isLoading) {
-    return null
+    return <FullScreenSpinner />
   }
 
   if (isAuthenticated) {

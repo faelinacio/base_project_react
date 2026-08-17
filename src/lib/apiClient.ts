@@ -30,6 +30,29 @@ async function performRefresh(): Promise<string> {
   return response.data.accessToken
 }
 
+/**
+ * Refreshes the access token, deduping concurrent calls (e.g. two requests hitting 401 at once,
+ * or React StrictMode double-invoking an effect) so only one /api/auth/refresh request is ever
+ * in flight. Only a definite 401 (refresh token invalid/expired/reused) clears the session —
+ * transient failures (network error, 5xx) are left for the caller to retry without destroying an
+ * otherwise-valid refresh token.
+ */
+export function refreshAccessToken(): Promise<string> {
+  refreshPromise ??= performRefresh()
+    .catch((error: unknown) => {
+      if (axios.isAxiosError(error) && error.response?.status === 401) {
+        accessToken = null
+        tokenStorage.clear()
+        onAuthFailure?.()
+      }
+      throw error
+    })
+    .finally(() => {
+      refreshPromise = null
+    })
+  return refreshPromise
+}
+
 apiClient.interceptors.request.use((config) => {
   if (accessToken) {
     config.headers.set('Authorization', `Bearer ${accessToken}`)
@@ -53,19 +76,9 @@ apiClient.interceptors.response.use(
 
     config._retried = true
 
-    try {
-      refreshPromise ??= performRefresh().finally(() => {
-        refreshPromise = null
-      })
-      const newAccessToken = await refreshPromise
-      config.headers.set('Authorization', `Bearer ${newAccessToken}`)
-      return apiClient(config)
-    } catch (refreshError) {
-      accessToken = null
-      tokenStorage.clear()
-      onAuthFailure?.()
-      return Promise.reject(refreshError)
-    }
+    const newAccessToken = await refreshAccessToken()
+    config.headers.set('Authorization', `Bearer ${newAccessToken}`)
+    return apiClient(config)
   },
 )
 
