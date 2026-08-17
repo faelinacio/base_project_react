@@ -41,23 +41,25 @@ O front consome a API do **base_project_spring_boot**. Configure a URL base em `
 VITE_API_URL=http://localhost:8080
 ```
 
-No backend, para desenvolvimento local, rode com o profile `dev` (`SPRING_PROFILES_ACTIVE=dev`) e
-garanta que `app.cors.allowed-origins` inclua a origem do front (por padrão `http://localhost:3000`
-no `application-dev.properties`).
+No backend, para desenvolvimento local, rode com o profile `dev` (`SPRING_PROFILES_ACTIVE=dev`). O
+profile `dev` do `application-dev.properties` assume que o front roda em `http://localhost:3000`
+(CORS liberado, base do link de verificação de e-mail e do redirect do OAuth2) — por isso
+`npm run dev` (veja `vite.config.ts`) já está configurado para servir nessa porta em vez do padrão
+do Vite (5173).
 
 Endpoints consumidos (`src/services/`):
 
-| Endpoint                          | Uso                                             |
-| --------------------------------- | ----------------------------------------------- |
-| `POST /api/auth/register`         | Criação de usuário (loga automaticamente)       |
-| `POST /api/auth/login`            | Login com e-mail/senha                          |
-| `POST /api/auth/login/totp`       | Confirmação do login quando o 2FA está ativo    |
-| `POST /api/auth/refresh`          | Renovação do par de tokens (rotação automática) |
-| `POST /api/auth/logout`           | Logout                                          |
+| Endpoint                          | Uso                                                  |
+| --------------------------------- | ---------------------------------------------------- |
+| `POST /api/auth/register`         | Criação de usuário (loga automaticamente)            |
+| `POST /api/auth/login`            | Login com e-mail/senha                               |
+| `POST /api/auth/login/totp`       | Confirmação do login quando o 2FA está ativo         |
+| `POST /api/auth/refresh`          | Renovação do par de tokens (rotação automática)      |
+| `POST /api/auth/logout`           | Logout                                               |
 | `GET /api/users/me`               | Perfil do usuário autenticado (inclui `totpEnabled`) |
-| `POST /api/users/me/totp/setup`   | Início do cadastro de 2FA (QR code + secret)    |
-| `POST /api/users/me/totp/enable`  | Confirmação e ativação do 2FA                   |
-| `POST /api/users/me/totp/disable` | Desativação do 2FA                              |
+| `POST /api/users/me/totp/setup`   | Início do cadastro de 2FA (QR code + secret)         |
+| `POST /api/users/me/totp/enable`  | Confirmação e ativação do 2FA                        |
+| `POST /api/users/me/totp/disable` | Desativação do 2FA                                   |
 
 O `accessToken` é mantido em memória e o `refreshToken` em `localStorage`; o cliente HTTP
 (`src/lib/apiClient.ts`) intercepta respostas `401` e tenta renovar o token automaticamente antes
