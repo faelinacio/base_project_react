@@ -1,7 +1,6 @@
 import {
   Avatar,
   Box,
-  Button,
   HStack,
   Link as ChakraLink,
   Menu,
@@ -29,13 +28,6 @@ export function TopBar() {
         </ChakraLink>
 
         <HStack gap={2}>
-          <Button asChild variant="ghost" color="white" _hover={{ bg: 'whiteAlpha.300' }}>
-            <RouterLink to="/">Início</RouterLink>
-          </Button>
-          <Button asChild variant="ghost" color="white" _hover={{ bg: 'whiteAlpha.300' }}>
-            <RouterLink to="/settings">Configurações</RouterLink>
-          </Button>
-
           {user && (
             <Menu.Root>
               <Menu.Trigger asChild>
