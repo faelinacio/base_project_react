@@ -16,18 +16,22 @@ export function TopBar() {
 
   return (
     <Box as="header" bg="blue.600" color="white" px={4} py={3}>
-      <HStack justify="space-between">
+      <HStack justify="space-between" wrap="nowrap">
         <ChakraLink
           asChild
           fontWeight="bold"
           fontSize="lg"
           color="white"
+          minW={0}
+          overflow="hidden"
+          whiteSpace="nowrap"
+          textOverflow="ellipsis"
           _hover={{ textDecoration: 'none', color: 'white' }}
         >
           <RouterLink to="/">base_project_react</RouterLink>
         </ChakraLink>
 
-        <HStack gap={2}>
+        <HStack gap={2} flexShrink={0}>
           {user && (
             <Menu.Root>
               <Menu.Trigger asChild>
