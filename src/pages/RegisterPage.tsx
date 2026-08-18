@@ -110,6 +110,7 @@ export function RegisterPage() {
           <Field.Root invalid={Boolean(form.formState.errors.password)} mb={4}>
             <Field.Label>Senha</Field.Label>
             <Input {...form.register('password')} type="password" autoComplete="new-password" />
+            <Field.HelperText>Mínimo de 8 caracteres.</Field.HelperText>
             {form.formState.errors.password && (
               <Field.ErrorText>{form.formState.errors.password.message}</Field.ErrorText>
             )}
@@ -121,6 +122,7 @@ export function RegisterPage() {
               type="password"
               autoComplete="new-password"
             />
+            <Field.HelperText>Digite a mesma senha informada acima.</Field.HelperText>
             {form.formState.errors.confirmPassword && (
               <Field.ErrorText>{form.formState.errors.confirmPassword.message}</Field.ErrorText>
             )}
